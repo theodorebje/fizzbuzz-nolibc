@@ -16,10 +16,11 @@ bin := $(bin_dir)/$(target)
 cc := gcc
 strip := strip
 gdb := gdb
+objdump := objdump
 
 # Flags for freestanding, no libc, static linking
 warnings := -Wall -Wextra -Wpedantic -Werror=implicit-function-declaration -Werror=implicit-int -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wundef -Wunused-macros -Wcast-align -Wconversion -Wno-sign-conversion -Wnull-dereference -Wtrampolines -Wmissing-declarations -Wredundant-decls -Wwrite-strings -Wunused-parameter -Wbad-function-cast -Wno-analyzer-fd-leak
-cflags := -ffreestanding -nostdlib -static -fanalyzer -g -O2 -std=c23 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-fat-lto-objects -fno-stack-protector -I$(src_dir) -I$(src_dir)/libasm $(warnings) 
+cflags := -ffreestanding -nostdlib -static -fanalyzer -g -Os -std=c23 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-fat-lto-objects -fno-stack-protector -I$(src_dir) -I$(src_dir)/libasm $(warnings) 
 ldflags := -nostdlib -static -Wl,-z,max-page-size=0x1000,--build-id=none,--gc-sections,-e,_start -flto
 
 # Create binary directory
@@ -63,6 +64,12 @@ clean:
 
 debug: all
 	$(gdb) $(bin) $(COREFILE)
+
+objdump: all
+	$(objdump) -d -s -M intel $(bin)
+
+instructions: all
+	$(objdump) -d $(bin) | grep -E '^\s+[0-9a-f]+:' | wc -l
 
 strace: all
 	strace $(bin) $(ARGS)
