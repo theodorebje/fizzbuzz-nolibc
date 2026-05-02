@@ -19,7 +19,7 @@ gdb := gdb
 
 # Flags for freestanding, no libc, static linking
 warnings := -Wall -Wextra -Wpedantic -Werror=implicit-function-declaration -Werror=implicit-int -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wundef -Wunused-macros -Wcast-align -Wconversion -Wno-sign-conversion -Wnull-dereference -Wtrampolines -Wmissing-declarations -Wredundant-decls -Wwrite-strings -Wunused-parameter -Wbad-function-cast -Wno-analyzer-fd-leak
-cflags := -ffreestanding -nostdlib -static -fanalyzer -g -O2 -std=c23 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-fat-lto-objects -I$(src_dir) -I$(src_dir)/libasm $(warnings) 
+cflags := -ffreestanding -nostdlib -static -fanalyzer -g -O2 -std=c23 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-fat-lto-objects -fno-stack-protector -I$(src_dir) -I$(src_dir)/libasm $(warnings) 
 ldflags := -nostdlib -static -Wl,-z,max-page-size=0x1000,--build-id=none,--gc-sections,-e,_start -flto
 
 # Create binary directory
