@@ -68,31 +68,31 @@ write_newline:
 
 SECTION .rodata align=1 noexec
 
-STDOUT                 equ 1
-SYS_WRITE              equ 1
-SYS_EXIT               equ 60
+STDOUT               equ 1
+SYS_WRITE            equ 1
+SYS_EXIT             equ 60
 
-COUNT_FROM              equ 1
-COUNT_TO                equ 101   ; Exclusive
+COUNT_FROM           equ 1
+COUNT_TO             equ 101   ; Exclusive
 
 ; FizzBuzz thresholds and multipliers (mod 256 inverse)
-MULTIPLY_BY_3          equ 171    ; 3 * 171 ≡ 1 (mod 256)
-MULTIPLY_BY_5          equ 205    ; 5 * 205 ≡ 1 (mod 256)
-FIZZ_CMP               equ 85     ; if (n*171) & 0xFF <= 85 -> divisible by 3
-BUZZ_CMP               equ 51     ; if (n*205) & 0xFF <= 51 -> divisible by 5
+MULTIPLY_BY_3        equ 171    ; 3 * 171 ≡ 1 (mod 256)
+MULTIPLY_BY_5        equ 205    ; 5 * 205 ≡ 1 (mod 256)
+FIZZ_CMP             equ 85     ; if (n*171) & 0xFF <= 85 -> divisible by 3
+BUZZ_CMP             equ 51     ; if (n*205) & 0xFF <= 51 -> divisible by 5
 
-TEN_DECIMAL_LENGTH     equ 2      ; 10
-DIGIT_DECIMAL_LENGTH   equ 1      ; 1
+TEN_DECIMAL_LENGTH   equ 2      ; 10
+DIGIT_DECIMAL_LENGTH equ 1      ; 1
 
-WITHIN_SINGLE_DIGIT    equ 9      ; 1..=9
+WITHIN_SINGLE_DIGIT  equ 9      ; 1..=9
 
-ZERO                   equ '0'
+ZERO                 equ '0'
 
-FIZZ                   db 'Fizz'
-BUZZ                   db 'Buzz'
-NEWLINE                db `\n`
+FIZZ                 db 'Fizz'
+BUZZ                 db 'Buzz'
+NEWLINE              db `\n`
 
-FIZZ_LEN               equ 4
-BUZZ_LEN               equ 4
-NEWLINE_LEN            equ 1
+FIZZ_LEN             equ 4
+BUZZ_LEN             equ 4
+NEWLINE_LEN          equ 1
 
