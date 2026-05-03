@@ -5,7 +5,6 @@ global _start
 SECTION .text align=1 exec
 
 _start:
-        push    rbx
         mov     r8b, COUNT_FROM
         mov     r9b, MULTIPLY_BY_3
         mov     edi, STDOUT
