@@ -16,4 +16,6 @@ default_diagnostics = true
 compile_flags_txt = [
     "-f",
     "elf64",
+    "-o",
+    "bin/main.o"
 ]
