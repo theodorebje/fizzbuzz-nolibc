@@ -19,7 +19,6 @@ loop_start:
         lea     rsi, [FIZZ]
         mov     edx, FIZZ_LEN
         syscall
-        mov     dl, TRUE
 after_fizz:
         mov     eax, r8d
         imul    eax, r10d
