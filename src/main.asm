@@ -16,7 +16,7 @@ loop_start:
         cmp     al, FIZZ_CMP
         ja      after_fizz
         mov     eax, edi
-        lea     rsi, [rel FIZZ]
+        lea     rsi, [FIZZ]
         mov     edx, FIZZ_LEN
         syscall
         mov     dl, TRUE
@@ -26,7 +26,7 @@ after_fizz:
         cmp     al, BUZZ_CMP
         ja      maybe_number
         mov     eax, edi
-        lea     rsi, [rel BUZZ]
+        lea     rsi, [BUZZ]
         mov     edx, BUZZ_LEN
         jmp     write_buffer
 
@@ -65,7 +65,7 @@ write_buffer:
         syscall
 write_newline:
         mov     eax, edi
-        lea     rsi, [rel NEWLINE]
+        lea     rsi, [NEWLINE]
         mov     edx, NEWLINE_LEN
         syscall
         inc     r8d
