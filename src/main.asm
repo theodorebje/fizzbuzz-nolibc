@@ -10,16 +10,15 @@ COUNT_FROM           equ 1
 COUNT_TO             equ 100
 FIZZ_COUNTER         equ 3
 BUZZ_COUNTER         equ 5
-DIVISOR_10           equ 10
 
 NULL                 equ 0
 ASCII_ZERO           equ '0'
 ASCII_ZERO_PAIR      equ '00'
 NEWLINE              equ `\n`
 
-ONE_DIGIT_PTR_OFFSET equ 1
 BITS_PER_BYTE        equ 8
 
+DIVISOR              db 10
 FIZZ                 db 'Fizz', NEWLINE
 BUZZ                 db 'Buzz', NEWLINE
 FIZZBUZZ             db 'FizzBuzz', NEWLINE
@@ -29,7 +28,7 @@ FIZZ_LEN             equ 5
 BUZZ_LEN             equ 5
 FIZZBUZZ_LEN         equ 9
 TWO_DIGIT_LEN        equ $-DEFAULT_BUFFER
-ONE_DIGIT_LEN        equ TWO_DIGIT_LEN - ONE_DIGIT_PTR_OFFSET
+ONE_DIGIT_LEN        equ TWO_DIGIT_LEN - 1
 
 SECTION .text align=1 exec
 
@@ -61,8 +60,7 @@ not_fizz:
 
 number:
         lea     eax, [r8 + COUNT_TO + COUNT_FROM]
-        mov     dl, DIVISOR_10
-        div     dl
+        div     byte [DIVISOR]
         add     ax, ASCII_ZERO_PAIR
         mov     [DEFAULT_BUFFER], ax
         lea     rsi, [DEFAULT_BUFFER]
