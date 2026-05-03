@@ -1,5 +1,3 @@
-; Generated from the compiled ELF with `objconv -fnasm` and trimmed slightly.
-
 default rel
 
 global _start
@@ -8,29 +6,29 @@ SECTION .text align=1 exec
 
 _start:
         push    rbx
-        mov     r8b, 1
-        mov     r9b, 171
-        mov     edi, 1
-        mov     r10b, 205
+        mov     r8b, COUNT_FROM
+        mov     r9b, MULTIPLY_BY_3
+        mov     edi, STDOUT
+        mov     r10b, MULTIPLY_BY_5
 loop_start:
         mov     eax, r8d
         xor     edx, edx
         imul    eax, r9d
-        cmp     al, 85
+        cmp     al, FIZZ_CMP
         ja      after_fizz
         mov     eax, edi
-        lea     rsi, [rel fizz]
-        mov     edx, 4
+        lea     rsi, [rel FIZZ]
+        mov     edx, FIZZ_LEN
         syscall
-        mov     dl, 1
+        mov     dl, TRUE
 after_fizz:
         mov     eax, r8d
         imul    eax, r10d
-        cmp     al, 51
+        cmp     al, BUZZ_CMP
         ja      maybe_number
         mov     eax, edi
-        lea     rsi, [rel buzz]
-        mov     edx, 4
+        lea     rsi, [rel BUZZ]
+        mov     edx, BUZZ_LEN
         jmp     write_buffer
 
 maybe_number:
@@ -38,28 +36,28 @@ maybe_number:
         jnz     write_newline
         cmp     r8b, 100
         jnz     maybe_two_digits
-        mov     word [rsp-3H], 12337
-        mov     edx, 3
-        mov     byte [rsp-1H], 48
+        mov     word [rsp-3H], TEN_ASCII_LE
+        mov     edx, HUNDRED_DECIMAL_LENGTH
+        mov     byte [rsp-1H], ZERO
         jmp     number_ready
 
 maybe_two_digits:
-        cmp     r8b, 9
+        cmp     r8b, WITHIN_SINGLE_DIGIT
         jle     one_digit
         mov     dl, 10
         movsx   ax, r8b
         idiv    dl
-        lea     edx, [rax+30H]
+        lea     edx, [rax+ZERO]
         movzx   eax, ah
-        add     eax, 48
+        add     eax, ZERO
         mov     byte [rsp-3H], dl
-        mov     edx, 2
+        mov     edx, TEN_DECIMAL_LENGTH
         mov     byte [rsp-2H], al
         jmp     number_ready
 
 one_digit:
-        lea     eax, [r8+30H]
-        mov     edx, 1
+        lea     eax, [r8+ZERO]
+        mov     edx, DIGIT_DECIMAL_LENGTH
         mov     byte [rsp-3H], al
 number_ready:
         mov     eax, edi
@@ -68,23 +66,49 @@ write_buffer:
         syscall
 write_newline:
         mov     eax, edi
-        lea     rsi, [rel newline]
-        mov     edx, 1
+        lea     rsi, [rel NEWLINE]
+        mov     edx, NEWLINE_LEN
         syscall
         inc     r8d
-        cmp     r8b, 101
+        cmp     r8b, COUNT_TO
         jne     loop_start
-        mov     eax, 60
+        mov     eax, SYS_EXIT
         xor     edi, edi
         syscall
 
 SECTION .rodata align=1 noexec
 
-fizz:
-        db 46H, 69H, 7AH, 7AH, 00H
+STDOUT                 equ 1
+SYS_WRITE              equ 1
+SYS_EXIT               equ 60
 
-buzz:
-        db 42H, 75H, 7AH, 7AH, 00H
+COUNT_FROM              equ 1
+COUNT_TO                equ 101   ; Exclusive
 
-newline:
-        db 0AH, 00H
+; FizzBuzz thresholds and multipliers (mod 256 inverse)
+MULTIPLY_BY_3          equ 171    ; 3 * 171 ≡ 1 (mod 256)
+MULTIPLY_BY_5          equ 205    ; 5 * 205 ≡ 1 (mod 256)
+FIZZ_CMP               equ 85     ; if (n*171) & 0xFF <= 85 -> divisible by 3
+BUZZ_CMP               equ 51     ; if (n*205) & 0xFF <= 51 -> divisible by 5
+
+HUNDRED_DECIMAL_LENGTH equ 3      ; 100
+TEN_DECIMAL_LENGTH     equ 2      ; 10
+DIGIT_DECIMAL_LENGTH   equ 1      ; 1
+
+WITHIN_SINGLE_DIGIT    equ 9      ; 1..=9
+
+TEN_ASCII_LE           equ 0x3031 ; little‑endian word: low byte = '1' (0x31), high byte = '0' (0x30)
+
+ZERO                   equ '0'
+
+FIZZ                   db 'Fizz'
+BUZZ                   db 'Buzz'
+NEWLINE                db `\n`
+
+FIZZ_LEN               equ 4
+BUZZ_LEN               equ 4
+NEWLINE_LEN            equ 1
+
+TRUE                   equ 1
+FALSE                  equ 0
+
