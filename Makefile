@@ -17,6 +17,7 @@ cc := gcc
 strip := strip
 gdb := gdb
 objdump := objdump
+python3 := python3
 
 # Flags for freestanding, no libc, static linking
 warnings := -Wall -Wextra -Wpedantic -Werror=implicit-function-declaration -Werror=implicit-int -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wundef -Wunused-macros -Wcast-align -Wconversion -Wno-sign-conversion -Wnull-dereference -Wtrampolines -Wmissing-declarations -Wredundant-decls -Wwrite-strings -Wunused-parameter -Wbad-function-cast -Wno-analyzer-fd-leak
@@ -34,7 +35,7 @@ build: mkdir
 		base="$${base%.*}"; \
 		obj="$(bin_dir)/$$base.o"; \
 		dep="$(bin_dir)/$$base.d"; \
-		echo "CC $$src -> $$obj"; \
+		echo "$(cc) -c $$dep $$src -o $$obj" >&2; \
 		$(cc) -c $(cflags) -MMD -MF $$dep $$src -o $$obj; \
 	done
 
@@ -43,7 +44,6 @@ build: mkdir
 
 # Link all .o files into executable
 link: build
-	@echo "Linking $(objects) -> $(bin)"
 	$(cc) $(objects) -o $(bin) $(ldflags)
 
 strip: link
@@ -70,6 +70,10 @@ objdump: all
 
 instructions: all
 	$(objdump) -d $(bin) | grep -E '^\s+[0-9a-f]+:' | wc -l
+
+test: all
+	$(python3) tests/output.py
+	$(python3) tests/instructions.py
 
 strace: all
 	strace $(bin) $(ARGS)
