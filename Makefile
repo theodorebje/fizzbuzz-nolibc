@@ -7,8 +7,10 @@ bin_dir := bin
 base_name := main
 
 bin := $(bin_dir)/$(target)
+min_bin := $(bin_dir)/$(target)_min
 asm_src := $(src_dir)/$(base_name).asm
 obj := $(bin_dir)/$(base_name).o
+linker_script := $(src_dir)/tiny.ld
 
 nasm := nasm
 ld := ld
@@ -18,7 +20,8 @@ objdump := objdump
 python3 := python3
 
 asmflags := -f elf64
-ldflags := -static -e _start
+ldflags := -static -e _start -N
+min_ldflags := -static -nostdlib -T $(linker_script) -z max-page-size=1 -z common-page-size=1 -z nosectionheader
 
 # Create binary directory
 mkdir:
@@ -32,11 +35,17 @@ build: mkdir
 link: build
 	$(ld) $(ldflags) $(obj) -o $(bin)
 
+link_min: build
+	$(ld) $(min_ldflags) $(obj) -o $(min_bin)
+
 strip: link
-	$(strip) --strip-all --remove-section=.comment --remove-section=.note.gnu.property $(bin)
+	$(strip) --strip-all --remove-section=.comment --remove-section=.note.gnu.property $(bin)	
 
 bloaty: strip
 	bloaty $(bin)
+
+bloaty_min: link_min
+	bloaty $(min_bin)
 
 # Build everything
 all: link
