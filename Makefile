@@ -4,13 +4,8 @@ target := fizzbuzz
 
 src_dir := src
 bin_dir := bin
+base_name := main
 
-# Collect all source files
-c_sources := $(shell find $(src_dir) -type f -name '*.c')
-asm_sources := $(shell find $(src_dir) -type f -name '*.S')
-sources := $(c_sources) $(asm_sources)
-depfiles := $(foreach src,$(sources),$(bin_dir)/$(basename $(notdir $(src))).d)
-objects := $(foreach src,$(sources),$(bin_dir)/$(basename $(notdir $(src))).o)
 bin := $(bin_dir)/$(target)
 
 cc := gcc
@@ -30,21 +25,11 @@ mkdir:
 
 # Compile all source files into .o files
 build: mkdir
-	@set -e; for src in $(sources); do \
-		base="$$(basename "$$src")"; \
-		base="$${base%.*}"; \
-		obj="$(bin_dir)/$$base.o"; \
-		dep="$(bin_dir)/$$base.d"; \
-		echo "$(cc) -c $$dep $$src -o $$obj" >&2; \
-		$(cc) -c $(cflags) -MMD -MF $$dep $$src -o $$obj; \
-	done
-
-# Include dependency files if they exist
--include $(depfiles)
+	$(cc) -c $(cflags) -MMD -MF $(bin_dir)/$(base_name).d $(src_dir)/$(base_name).c -o $(bin_dir)/$(base_name).o
 
 # Link all .o files into executable
 link: build
-	$(cc) $(objects) -o $(bin) $(ldflags)
+	$(cc) $(bin_dir)/$(base_name).o -o $(bin) $(ldflags)
 
 strip: link
 	$(strip) --strip-all --remove-section=.comment --remove-section=.note.gnu.property $(bin)
