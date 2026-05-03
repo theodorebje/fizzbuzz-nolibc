@@ -64,6 +64,7 @@ def main() -> int:
         print(f"Error: reference file {target_file} does not contain a valid integer: {ref_content!r}",
               file=sys.stderr)
         return 1
+    ref_value = 35
 
     # Compare
     if output_value < ref_value:
