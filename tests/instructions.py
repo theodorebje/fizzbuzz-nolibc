@@ -67,6 +67,10 @@ def main() -> int:
 
     # Compare
     if output_value < ref_value:
+        with open(target_file, "w", encoding="utf-8") as f:
+            f.write(str(output_value))
+        print(f"Updated reference file {target_file} with value {output_value}")
+
         print(f"PASS: {output_value} < {ref_value}")
         return 0
     else:
