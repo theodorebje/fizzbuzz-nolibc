@@ -36,7 +36,7 @@ SECTION .text align=1 exec
 global _start
 
 _start:
-        mov     r8b, COUNT_FROM
+        mov     r8d, -COUNT_TO
         mov     bx, (BUZZ_COUNTER << BITS_PER_BYTE) | FIZZ_COUNTER
         mov     edi, STDOUT
 loop_start:
@@ -60,7 +60,7 @@ not_fizz:
         jmp     write
 
 number:
-        movzx   eax, r8b
+        lea     eax, [r8 + COUNT_TO + COUNT_FROM]
         mov     dl, DIVISOR_10
         div     dl
         add     ax, ASCII_ZERO_PAIR
@@ -75,8 +75,7 @@ write:
         mov     eax, SYS_WRITE
         syscall
         inc     r8d
-        cmp     r8b, COUNT_TO
-        jle     loop_start
+        jnz     loop_start
         mov     eax, SYS_EXIT
         xor     edi, edi
         syscall
