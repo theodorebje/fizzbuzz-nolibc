@@ -32,14 +32,6 @@ after_fizz:
 maybe_number:
         test    dl, dl
         jnz     write_newline
-        cmp     r8b, 100
-        jnz     maybe_two_digits
-        mov     word [rsp-3H], TEN_ASCII_LE
-        mov     edx, HUNDRED_DECIMAL_LENGTH
-        mov     byte [rsp-1H], ZERO
-        jmp     number_ready
-
-maybe_two_digits:
         cmp     r8b, WITHIN_SINGLE_DIGIT
         jle     one_digit
         mov     dl, 10
@@ -89,13 +81,10 @@ MULTIPLY_BY_5          equ 205    ; 5 * 205 ≡ 1 (mod 256)
 FIZZ_CMP               equ 85     ; if (n*171) & 0xFF <= 85 -> divisible by 3
 BUZZ_CMP               equ 51     ; if (n*205) & 0xFF <= 51 -> divisible by 5
 
-HUNDRED_DECIMAL_LENGTH equ 3      ; 100
 TEN_DECIMAL_LENGTH     equ 2      ; 10
 DIGIT_DECIMAL_LENGTH   equ 1      ; 1
 
 WITHIN_SINGLE_DIGIT    equ 9      ; 1..=9
-
-TEN_ASCII_LE           equ 0x3031 ; little‑endian word: low byte = '1' (0x31), high byte = '0' (0x30)
 
 ZERO                   equ '0'
 
@@ -106,7 +95,4 @@ NEWLINE                db `\n`
 FIZZ_LEN               equ 4
 BUZZ_LEN               equ 4
 NEWLINE_LEN            equ 1
-
-TRUE                   equ 1
-FALSE                  equ 0
 
