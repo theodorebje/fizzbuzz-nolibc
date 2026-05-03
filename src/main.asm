@@ -35,45 +35,45 @@ SECTION .text align=1 exec
 global _start
 
 _start:
-        mov     r8d, -COUNT_TO
+        mov     r8w, -COUNT_TO
         mov     bx, (BUZZ_COUNTER << BITS_PER_BYTE) | FIZZ_COUNTER
-        mov     edi, STDOUT
+        mov     dil, STDOUT
 loop_start:
-        mov     edx, FIZZ_LEN
+        mov     dl, FIZZ_LEN
         dec     bl
         jnz     not_fizz
         mov     bl, FIZZ_COUNTER
-        lea     rsi, [FIZZ]
+        lea     si, [FIZZ]
         dec     bh
         jnz     write
         mov     bh, BUZZ_COUNTER
-        lea     rsi, [FIZZBUZZ]
-        mov     edx, FIZZBUZZ_LEN
+        lea     si, [FIZZBUZZ]
+        mov     dl, FIZZBUZZ_LEN
         jmp     write
 
 not_fizz:
         dec     bh
         jnz     number
         mov     bh, BUZZ_COUNTER
-        lea     rsi, [BUZZ]
+        lea     si, [BUZZ]
         jmp     write
 
 number:
-        lea     eax, [r8 + COUNT_TO + COUNT_FROM]
+        lea     ax, [r8d + COUNT_TO + COUNT_FROM]
         div     byte [DIVISOR]
         add     ax, ASCII_ZERO_PAIR
         mov     [DEFAULT_BUFFER], ax
-        lea     rsi, [DEFAULT_BUFFER]
-        mov     edx, TWO_DIGIT_LEN
+        lea     esi, [DEFAULT_BUFFER]
+        mov     dl, TWO_DIGIT_LEN
         cmp     al, ASCII_ZERO
         jne     write
-        inc     rsi
-        dec     edx
+        inc     sil
+        dec     dl
 write:
-        mov     eax, SYS_WRITE
+        mov     ax, SYS_WRITE
         syscall
-        inc     r8d
+        inc     r8b
         jnz     loop_start
-        mov     eax, SYS_EXIT
-        xor     edi, edi
+        mov     ax, SYS_EXIT
+        xor     dil, dil
         syscall
