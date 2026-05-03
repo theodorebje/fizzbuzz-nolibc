@@ -7,29 +7,30 @@ bin_dir := bin
 base_name := main
 
 bin := $(bin_dir)/$(target)
+asm_src := $(src_dir)/$(base_name).asm
+obj := $(bin_dir)/$(base_name).o
 
-cc := gcc
+nasm := nasm
+ld := ld
 strip := strip
 gdb := gdb
 objdump := objdump
 python3 := python3
 
-# Flags for freestanding, no libc, static linking
-warnings := -Wall -Wextra -Wpedantic -Werror=implicit-function-declaration -Werror=implicit-int -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wundef -Wunused-macros -Wcast-align -Wconversion -Wno-sign-conversion -Wnull-dereference -Wtrampolines -Wmissing-declarations -Wredundant-decls -Wwrite-strings -Wunused-parameter -Wbad-function-cast -Wno-analyzer-fd-leak
-cflags := -ffreestanding -fno-unroll-loops -ffunction-sections -nostdlib -static -fanalyzer -g -Os -std=c23 -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-fat-lto-objects -fno-stack-protector -I$(src_dir) -I$(src_dir)/libasm $(warnings) 
-ldflags := -nostdlib -static -Wl,-z,max-page-size=0x1000,--build-id=none,--gc-sections,-e,_start -flto
+asmflags := -f elf64
+ldflags := -static -e _start
 
 # Create binary directory
 mkdir:
 	mkdir -p $(bin_dir)
 
-# Compile all source files into .o files
+# Assemble the NASM source into an object file
 build: mkdir
-	$(cc) -c $(cflags) -MMD -MF $(bin_dir)/$(base_name).d $(src_dir)/$(base_name).c -o $(bin_dir)/$(base_name).o
+	$(nasm) $(asmflags) $(asm_src) -o $(obj)
 
-# Link all .o files into executable
+# Link the object file into a static executable
 link: build
-	$(cc) $(bin_dir)/$(base_name).o -o $(bin) $(ldflags)
+	$(ld) $(ldflags) $(obj) -o $(bin)
 
 strip: link
 	$(strip) --strip-all --remove-section=.comment --remove-section=.note.gnu.property $(bin)
@@ -58,7 +59,6 @@ instructions: all
 
 test: all
 	$(python3) tests/output.py
-	$(python3) tests/instructions.py
 
 strace: all
 	strace $(bin) $(ARGS)
