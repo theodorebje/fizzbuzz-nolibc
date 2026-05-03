@@ -7,28 +7,28 @@ SYS_WRITE            equ 1
 SYS_EXIT             equ 60
 
 COUNT_FROM           equ 1
-COUNT_TO             equ 101   ; Exclusive
+COUNT_TO             equ 100
+FIZZ_COUNTER         equ 3
+BUZZ_COUNTER         equ 5
+DIVISOR_10           equ 10
 
-; FizzBuzz thresholds and multipliers (mod 256 inverse)
-MULTIPLY_BY_3        equ 171    ; 3 * 171 ≡ 1 (mod 256)
-MULTIPLY_BY_5        equ 205    ; 5 * 205 ≡ 1 (mod 256)
-FIZZ_CMP             equ 85     ; if (n*171) & 0xFF <= 85 -> divisible by 3
-BUZZ_CMP             equ 51     ; if (n*205) & 0xFF <= 51 -> divisible by 5
+NULL                 equ 0
+ASCII_ZERO           equ '0'
+ASCII_ZERO_PAIR      equ '00'
+NEWLINE              equ `\n`
 
-TEN_DECIMAL_LENGTH   equ 2      ; 10
-DIGIT_DECIMAL_LENGTH equ 1      ; 1
+ONE_DIGIT_PTR_OFFSET equ 1
 
-WITHIN_SINGLE_DIGIT  equ 9      ; 1..=9
+FIZZ                 db 'Fizz', NEWLINE
+BUZZ                 db 'Buzz', NEWLINE
+FIZZBUZZ             db 'FizzBuzz', NEWLINE
+DEFAULT_BUFFER       db NULL, NULL, NEWLINE
 
-ZERO                 equ '0'
-
-FIZZ                 db 'Fizz'
-BUZZ                 db 'Buzz'
-NEWLINE              db `\n`
-
-FIZZ_LEN             equ 4
-BUZZ_LEN             equ 4
-NEWLINE_LEN          equ 1
+FIZZ_LEN             equ 5
+BUZZ_LEN             equ 5
+FIZZBUZZ_LEN         equ 9
+TWO_DIGIT_LEN        equ $-DEFAULT_BUFFER
+ONE_DIGIT_LEN        equ TWO_DIGIT_LEN - ONE_DIGIT_PTR_OFFSET
 
 SECTION .text align=1 exec
 
@@ -36,62 +36,55 @@ global _start
 
 _start:
         mov     r8b, COUNT_FROM
-        mov     r9b, MULTIPLY_BY_3
+        mov     r9b, FIZZ_COUNTER
+        mov     r10b, BUZZ_COUNTER
         mov     edi, STDOUT
-        mov     r10b, MULTIPLY_BY_5
 loop_start:
-        mov     eax, r8d
-        xor     edx, edx
-        imul    eax, r9d
-        cmp     al, FIZZ_CMP
-        ja      after_fizz
-        mov     eax, edi
+        dec     r9b
+        jnz     not_fizz
+        mov     r9b, FIZZ_COUNTER
+        dec     r10b
+        jnz     fizz
+        mov     r10b, BUZZ_COUNTER
+        lea     rsi, [FIZZBUZZ]
+        mov     edx, FIZZBUZZ_LEN
+        jmp     write
+
+fizz:
         lea     rsi, [FIZZ]
         mov     edx, FIZZ_LEN
-        syscall
-after_fizz:
-        mov     eax, r8d
-        imul    eax, r10d
-        cmp     al, BUZZ_CMP
-        ja      maybe_number
-        mov     eax, edi
+        jmp     write
+
+not_fizz:
+        dec     r10b
+        jnz     number
+        mov     r10b, BUZZ_COUNTER
         lea     rsi, [BUZZ]
         mov     edx, BUZZ_LEN
-        jmp     write_buffer
+        jmp     write
 
-maybe_number:
-        test    dl, dl
-        jnz     write_newline
-        cmp     r8b, WITHIN_SINGLE_DIGIT
-        jle     one_digit
-        mov     dl, 10
-        movsx   ax, r8b
-        idiv    dl
-        lea     edx, [rax+ZERO]
-        movzx   eax, ah
-        add     eax, ZERO
-        mov     byte [rsp-3H], dl
-        mov     edx, TEN_DECIMAL_LENGTH
-        mov     byte [rsp-2H], al
-        jmp     number_ready
+number:
+        movzx   eax, r8b
+        mov     dl, DIVISOR_10
+        div     dl
+        add     ax, ASCII_ZERO_PAIR
+        cmp     al, ASCII_ZERO
+        jne     two_digits
+        mov     byte [DEFAULT_BUFFER+ONE_DIGIT_PTR_OFFSET], ah
+        lea     rsi, [DEFAULT_BUFFER+ONE_DIGIT_PTR_OFFSET]
+        mov     edx, ONE_DIGIT_LEN
+        jmp     write
 
-one_digit:
-        lea     eax, [r8+ZERO]
-        mov     edx, DIGIT_DECIMAL_LENGTH
-        mov     byte [rsp-3H], al
-number_ready:
-        mov     eax, edi
-        lea     rsi, [rsp-3H]
-write_buffer:
-        syscall
-write_newline:
-        mov     eax, edi
-        lea     rsi, [NEWLINE]
-        mov     edx, NEWLINE_LEN
+two_digits:
+        mov     [DEFAULT_BUFFER], ax
+        lea     rsi, [DEFAULT_BUFFER]
+        mov     edx, TWO_DIGIT_LEN
+write:
+        mov     eax, SYS_WRITE
         syscall
         inc     r8d
         cmp     r8b, COUNT_TO
-        jne     loop_start
+        jle     loop_start
         mov     eax, SYS_EXIT
         xor     edi, edi
         syscall
