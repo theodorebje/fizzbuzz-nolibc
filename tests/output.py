@@ -17,16 +17,20 @@ def main():
         print(f"Error: {EXPECTED_FILE} not found in current directory.", file=sys.stderr)
         sys.exit(1)
 
-    # Run 'make run' and capture stdout (and stderr for debugging)
+    # Run 'make run' and capture stdout (and stderr for debugging), with a 1s timeout
     try:
         result = subprocess.run(
             ["make", "-s", "run"],
             capture_output=True,
             text=True,
             check=False,  # We'll handle return code manually
+            timeout=1,    # Timeout after 1 second
         )
     except FileNotFoundError:
         print("Error: 'make' command not found. Is make installed?", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.TimeoutExpired:
+        print("Error: 'make run' timed out after 1 second", file=sys.stderr)
         sys.exit(1)
 
     # If make failed, print stderr and exit with its return code
