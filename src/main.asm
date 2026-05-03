@@ -18,6 +18,7 @@ ASCII_ZERO_PAIR      equ '00'
 NEWLINE              equ `\n`
 
 ONE_DIGIT_PTR_OFFSET equ 1
+BITS_PER_BYTE        equ 8
 
 FIZZ                 db 'Fizz', NEWLINE
 BUZZ                 db 'Buzz', NEWLINE
@@ -36,26 +37,25 @@ global _start
 
 _start:
         mov     r8b, COUNT_FROM
-        mov     r9b, FIZZ_COUNTER
-        mov     r10b, BUZZ_COUNTER
+        mov     bx, (BUZZ_COUNTER << BITS_PER_BYTE) | FIZZ_COUNTER
         mov     edi, STDOUT
 loop_start:
         mov     edx, FIZZ_LEN
-        dec     r9b
+        dec     bl
         jnz     not_fizz
-        mov     r9b, FIZZ_COUNTER
+        mov     bl, FIZZ_COUNTER
         lea     rsi, [FIZZ]
-        dec     r10b
+        dec     bh
         jnz     write
-        mov     r10b, BUZZ_COUNTER
+        mov     bh, BUZZ_COUNTER
         lea     rsi, [FIZZBUZZ]
         mov     edx, FIZZBUZZ_LEN
         jmp     write
 
 not_fizz:
-        dec     r10b
+        dec     bh
         jnz     number
-        mov     r10b, BUZZ_COUNTER
+        mov     bh, BUZZ_COUNTER
         lea     rsi, [BUZZ]
         jmp     write
 
@@ -64,17 +64,13 @@ number:
         mov     dl, DIVISOR_10
         div     dl
         add     ax, ASCII_ZERO_PAIR
-        cmp     al, ASCII_ZERO
-        jne     two_digits
-        mov     byte [DEFAULT_BUFFER+ONE_DIGIT_PTR_OFFSET], ah
-        lea     rsi, [DEFAULT_BUFFER+ONE_DIGIT_PTR_OFFSET]
-        mov     edx, ONE_DIGIT_LEN
-        jmp     write
-
-two_digits:
         mov     [DEFAULT_BUFFER], ax
         lea     rsi, [DEFAULT_BUFFER]
         mov     edx, TWO_DIGIT_LEN
+        cmp     al, ASCII_ZERO
+        jne     write
+        inc     rsi
+        dec     edx
 write:
         mov     eax, SYS_WRITE
         syscall
