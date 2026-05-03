@@ -8,7 +8,7 @@ value to a reference integer stored in bin/instructions.txt.
 - If the reference file does not exist, it is created with the output value
   and the test passes.
 - If the reference file exists, the test passes only when the new output
-  value is <= the reference value.
+  value is < the reference value.
 """
 
 import os
@@ -66,11 +66,11 @@ def main() -> int:
         return 1
 
     # Compare
-    if output_value <= ref_value:
-        print(f"PASS: {output_value} <= {ref_value}")
+    if output_value < ref_value:
+        print(f"PASS: {output_value} < {ref_value}")
         return 0
     else:
-        print(f"FAIL: {output_value} > {ref_value}")
+        print(f"FAIL: {output_value} >= {ref_value}")
         return 1
 
 if __name__ == "__main__":
