@@ -59,6 +59,7 @@ instructions: all
 
 test: all
 	$(python3) tests/output.py
+	$(python3) tests/instructions.py
 
 strace: all
 	strace $(bin) $(ARGS)
