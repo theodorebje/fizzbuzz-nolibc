@@ -16,8 +16,6 @@ ASCII_ZERO           equ '0'
 ASCII_ZERO_PAIR      equ '00'
 NEWLINE              equ `\n`
 
-BITS_PER_BYTE        equ 8
-
 DIVISOR              db 10
 FIZZ                 db 'Fizz', NEWLINE
 BUZZ                 db 'Buzz', NEWLINE
@@ -30,31 +28,35 @@ FIZZBUZZ_LEN         equ 9
 TWO_DIGIT_LEN        equ $-DEFAULT_BUFFER
 ONE_DIGIT_LEN        equ TWO_DIGIT_LEN - 1
 
+SECTION .data align=1 write
+
+FIZZ_COUNT           db FIZZ_COUNTER
+BUZZ_COUNT           db BUZZ_COUNTER
+
 SECTION .text align=1 exec
 
 global _start
 
 _start:
         mov     r8w, -COUNT_TO
-        mov     bx, (BUZZ_COUNTER << BITS_PER_BYTE) | FIZZ_COUNTER
         mov     dil, STDOUT
 loop_start:
         mov     dl, FIZZ_LEN
-        dec     bl
+        dec     byte [FIZZ_COUNT]
         jnz     not_fizz
-        mov     bl, FIZZ_COUNTER
+        mov     byte [FIZZ_COUNT], FIZZ_COUNTER
         lea     si, [FIZZ]
-        dec     bh
+        dec     byte [BUZZ_COUNT]
         jnz     write
-        mov     bh, BUZZ_COUNTER
+        mov     byte [BUZZ_COUNT], BUZZ_COUNTER
         lea     si, [FIZZBUZZ]
         mov     dl, FIZZBUZZ_LEN
         jmp     write
 
 not_fizz:
-        dec     bh
+        dec     byte [BUZZ_COUNT]
         jnz     number
-        mov     bh, BUZZ_COUNTER
+        mov     byte [BUZZ_COUNT], BUZZ_COUNTER
         lea     si, [BUZZ]
         jmp     write
 
