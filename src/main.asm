@@ -40,19 +40,16 @@ _start:
         mov     r10b, BUZZ_COUNTER
         mov     edi, STDOUT
 loop_start:
+        mov     edx, FIZZ_LEN
         dec     r9b
         jnz     not_fizz
         mov     r9b, FIZZ_COUNTER
+        lea     rsi, [FIZZ]
         dec     r10b
-        jnz     fizz
+        jnz     write
         mov     r10b, BUZZ_COUNTER
         lea     rsi, [FIZZBUZZ]
         mov     edx, FIZZBUZZ_LEN
-        jmp     write
-
-fizz:
-        lea     rsi, [FIZZ]
-        mov     edx, FIZZ_LEN
         jmp     write
 
 not_fizz:
@@ -60,7 +57,6 @@ not_fizz:
         jnz     number
         mov     r10b, BUZZ_COUNTER
         lea     rsi, [BUZZ]
-        mov     edx, BUZZ_LEN
         jmp     write
 
 number:
@@ -88,4 +84,3 @@ write:
         mov     eax, SYS_EXIT
         xor     edi, edi
         syscall
-
