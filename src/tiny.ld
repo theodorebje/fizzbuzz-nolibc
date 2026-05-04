@@ -2,7 +2,7 @@ ENTRY(_start)
 
 PHDRS
 {
-    tiny PT_LOAD FILEHDR PHDRS FLAGS(5);
+    tiny PT_LOAD FILEHDR PHDRS FLAGS(7);
 }
 
 SECTIONS
@@ -12,6 +12,7 @@ SECTIONS
     .text : {
         *(.text)
         *(.rodata)
+        *(.data)
     } :tiny
 
     /DISCARD/ : {
